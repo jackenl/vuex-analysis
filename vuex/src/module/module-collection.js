@@ -4,6 +4,7 @@ import { assert, forEachValue } from '../util'
 export default class ModuleCollection {
   constructor (rawRootModule) {
     // register root module (Vuex.Store options)
+    // 注册构建 module 对象树
     this.register([], rawRootModule, false)
   }
 
@@ -32,6 +33,7 @@ export default class ModuleCollection {
 
     const newModule = new Module(rawModule, runtime)
     if (path.length === 0) {
+      // 根module
       this.root = newModule
     } else {
       const parent = this.get(path.slice(0, -1))

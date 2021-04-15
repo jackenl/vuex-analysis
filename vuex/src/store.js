@@ -3,6 +3,7 @@ import devtoolPlugin from './plugins/devtool'
 import ModuleCollection from './module/module-collection'
 import { forEachValue, isObject, isPromise, assert, partial } from './util'
 
+// 通过局部变量 Vue，判断是否已装载
 let Vue // bind on install
 
 export class Store {
@@ -10,6 +11,7 @@ export class Store {
     // Auto install if it is not done yet and `window` has `Vue`.
     // To allow users to avoid auto-installation in some cases,
     // this code should be placed here. See #731
+    // 如果是浏览器环境上通过 CDN 方式加载 Vue，则自动执行 install 方法
     if (!Vue && typeof window !== 'undefined' && window.Vue) {
       install(window.Vue)
     }
@@ -26,12 +28,12 @@ export class Store {
     } = options
 
     // store internal state
-    this._committing = false
-    this._actions = Object.create(null)
+    this._committing = false // 表示 commit 状态，用于判断是否是通过 commit 修改 state 属性
+    this._actions = Object.create(null) // 存储封装后的 actions 集合
     this._actionSubscribers = []
     this._mutations = Object.create(null)
     this._wrappedGetters = Object.create(null)
-    this._modules = new ModuleCollection(options)
+    this._modules = new ModuleCollection(options) // 构建 module 对象树
     this._modulesNamespaceMap = Object.create(null)
     this._subscribers = []
     this._watcherVM = new Vue()
@@ -82,6 +84,7 @@ export class Store {
 
   commit (_type, _payload, _options) {
     // check object-style commit
+    // 校验传参格式和纠正传参顺序
     const {
       type,
       payload,
@@ -537,7 +540,7 @@ function unifyObjectStyle (type, payload, options) {
 }
 
 export function install (_Vue) {
-  // Vue实例已经存在，说明已经Vue.use(Store)
+  // 防止 Vuex 重复装载
   if (Vue && _Vue === Vue) {
     if (__DEV__) {
       console.error(
