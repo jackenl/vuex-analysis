@@ -84,7 +84,7 @@ export class Store {
 
   commit (_type, _payload, _options) {
     // check object-style commit
-    // 校验传参格式和纠正传参顺序
+    // 配置参数校验和处理
     const {
       type,
       payload,
@@ -99,12 +99,14 @@ export class Store {
       }
       return
     }
+    // 用于判断是否是通过 commit 修改 state 属性
     this._withCommit(() => {
       entry.forEach(function commitIterator (handler) {
         handler(payload)
       })
     })
 
+    // 如果有订阅函数存在，则逐个执行
     this._subscribers
       .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
       .forEach(sub => sub(mutation, this.state))
@@ -148,6 +150,7 @@ export class Store {
       }
     }
 
+    // 通过异步 Promise 向 actionSubscribers 传递 action 执行结果并执行
     const result = entry.length > 1
       ? Promise.all(entry.map(handler => handler(payload)))
       : entry[0](payload)
@@ -248,6 +251,8 @@ export class Store {
   }
 
   _withCommit (fn) {
+    // 在修改 state 期间，将内部属性 _committing 设置为 true
+    // 通过 watch stateChange 查看 _committing 是为 true 即可判断修改的合法性
     const committing = this._committing
     this._committing = true
     fn()
@@ -287,6 +292,7 @@ function resetStoreVM (store, state, hot) {
   // bind store public getters
   store.getters = {}
   // reset local getters cache
+  // 重置 getter 缓存集合
   store._makeLocalGettersCache = Object.create(null)
   const wrappedGetters = store._wrappedGetters
   const computed = {}
@@ -294,7 +300,9 @@ function resetStoreVM (store, state, hot) {
     // use computed to leverage its lazy-caching mechanism
     // direct inline function use will lead to closure preserving oldVm.
     // using partial to return function with only arguments preserved in closure environment.
+    // 设置 compute 对象集合
     computed[key] = partial(fn, store)
+    // 通过 Object.defineProperty 重置访问 store.getters 获取的是 store._vm 属性上的值
     Object.defineProperty(store.getters, key, {
       get: () => store._vm[key],
       enumerable: true // for local getters
@@ -304,6 +312,7 @@ function resetStoreVM (store, state, hot) {
   // use a Vue instance to store the state tree
   // suppress warnings just in case the user has added
   // some funky global mixins
+  // 使用一个 Vue 实例存储 state 对象树，实现数据响应式
   const silent = Vue.config.silent
   Vue.config.silent = true
   store._vm = new Vue({
@@ -327,6 +336,7 @@ function resetStoreVM (store, state, hot) {
         oldVm._data.$$state = null
       })
     }
+    // 销毁旧的状态管理 Vue 实例
     Vue.nextTick(() => oldVm.$destroy())
   }
 }
@@ -336,6 +346,7 @@ function installModule (store, rootState, path, module, hot) {
   const namespace = store._modules.getNamespace(path)
 
   // register in namespace map
+  // 注册进模块 namespace map，防止命名冲突
   if (module.namespaced) {
     if (store._modulesNamespaceMap[namespace] && __DEV__) {
       console.error(`[vuex] duplicate namespace ${namespace} for the namespaced module ${path.join('/')}`)
@@ -344,6 +355,7 @@ function installModule (store, rootState, path, module, hot) {
   }
 
   // set state
+  // 把模块的 state 设置到 state._vm.$data 的 $$state 属性中，其中 state._vm 定义在 resetStoreVM 中
   if (!isRoot && !hot) {
     const parentState = getNestedState(rootState, path.slice(0, -1))
     const moduleName = path[path.length - 1]
@@ -359,8 +371,10 @@ function installModule (store, rootState, path, module, hot) {
     })
   }
 
+  // module上下文环境生成
   const local = module.context = makeLocalContext(store, namespace, path)
 
+  // 注册一系列 mutations 、actions 以及 getters，并将其 this 绑定到当前 store 对象
   module.forEachMutation((mutation, key) => {
     const namespacedType = namespace + key
     registerMutation(store, namespacedType, mutation, local)
@@ -377,6 +391,7 @@ function installModule (store, rootState, path, module, hot) {
     registerGetter(store, namespacedType, getter, local)
   })
 
+  // 递归安装子 module
   module.forEachChild((child, key) => {
     installModule(store, rootState, path.concat(key), child, hot)
   })
@@ -395,6 +410,7 @@ function makeLocalContext (store, namespace, path) {
       const { payload, options } = args
       let { type } = args
 
+      // 给 type 添加前置模块命名
       if (!options || !options.root) {
         type = namespace + type
         if (__DEV__ && !store._actions[type]) {
