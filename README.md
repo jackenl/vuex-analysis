@@ -644,5 +644,5 @@ store 构造函数是 plugins 注入，plugin 插件函数的第一个参数是 
 
 ## 参考文献
 
-* https://tech.meituan.com/2017/04/27/vuex-code-analysis.html
+* [Vuex框架原理与源码分析 - 美团技术团队](https://tech.meituan.com/2017/04/27/vuex-code-analysis.html)
 
