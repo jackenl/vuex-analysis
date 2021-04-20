@@ -1,5 +1,5 @@
 import Module from './module'
-import { isPromise } from './utils'
+import { forEachValue, isPromise, partial } from './utils'
 
 let Vue
 
@@ -7,7 +7,7 @@ export class Store {
   constructor(options) {
     this._mutations = Object.create(null)
     this._actions = Object.create(null)
-    this._getters = Object.create(null)
+    this._wrappedGetters = Object.create(null)
     this._root = new Module(options)
 
     const store = this
@@ -18,6 +18,22 @@ export class Store {
     this.dispatch = function boundDispatch(type, payload) {
       return dispatch.call(store, type, payload)
     }
+
+    const state = this._root.state
+    installStore(store)
+    resetStoreVM(store, state)
+  }
+
+  get state() {
+    return this._vm._data.$$state
+  }
+
+  set state(v) {
+    throw new Error('please use store.replaceState() to replace store state.')
+  }
+
+  replaceState(state) {
+    this._vm._data.$$state = state
   }
 
   commit(type, payload) {
@@ -53,17 +69,17 @@ function installStore(store) {
   root.forEachMutation((mutation, key) => {
     const entry = store._mutations[key] || (store._mutations[key] = [])
     entry.push(function mutationHandler(payload) {
-      mutation.call(store, root.state, payload)
+      mutation.call(store, store.state, payload)
     })
   })
   root.forEachAction((action, key) => {
     const entry = store._actions[key] || (store._actions[key] = [])
     entry.push(function actionHandler(payload) {
-      const res = action.call(store, {
+      let res = action.call(store, {
         dispatch: store.dispatch,
         commit: store.commit,
-        getters: root.getters,
-        state: root.state
+        getters: store.getters,
+        state: store.state
       }, payload)
       if (!isPromise(res)) {
         res = Promise.resolve(res)
@@ -72,12 +88,49 @@ function installStore(store) {
     })
   })
   root.forEachGetter((getter, key) => {
+    if (store._wrappedGetters[key]) {
+      return
+    }
+    store._wrappedGetters[key] = function getterHandler(store) {
+      return getter(
+        store.state,
+        store.getters
+      )
+    }
   })
 }
 
-function resetStoreVM() {}
+function resetStoreVM(store, state) {
+  const oldVm = store._vm
 
-export function install(Vue) {
+  store.getters = {}
+  const wrappedGetters = store._wrappedGetters
+  const computed = {}
+  forEachValue(wrappedGetters, (fn, key) => {
+    computed[key] = partial(fn, store)
+    Object.defineProperty(store.getters, key, {
+      get: () => store._vm[key],
+      enumerable: true
+    })
+  })
+
+  store._vm = new Vue({
+    data: {
+      $$state: state
+    },
+    computed
+  })
+
+  if (oldVm) {
+    Vue.nextTick(() => oldVm.$destroy())
+  }
+}
+
+export function install(_Vue) {
+  if (Vue && _Vue === Vue) {
+    return
+  }
+  Vue = _Vue
   Vue.mixin({
     beforeCreate: storeInit,
   });
