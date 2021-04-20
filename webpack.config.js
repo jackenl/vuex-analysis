@@ -1,3 +1,5 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require("copy-webpack-plugin")
 const path = require('path')
 
 module.exports = {
@@ -21,5 +23,18 @@ module.exports = {
   },
   optimization: {
     minimize: true,
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'example/index.html')
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: '*.js',
+          context: path.resolve(__dirname, 'example')
+        }
+      ]
+    })
+  ]
 }
