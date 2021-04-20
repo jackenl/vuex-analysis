@@ -11,7 +11,7 @@ Vuex 是什么？
 ## 1 功能特性
 
 <div align="center">
-  <img src="assets/image-20210419145741154.png" alt="image-20210419145741154" width="50%" />
+  <img src="assets/image-20210420092928587.png" alt="image-20210419145741154" width="50%" />
 </div>
 以上就是 Vuex 的框架核心流程图，Vue Component 负责数据的渲染，Vuex 负责数据的状态管理，Vue Component 通过`dispatch`函数触发 Vuex 对应`action`函数的执行，`action`函数内部调用`commit`函数触发对应`mutation`函数执行，`mutation`函数可访问 Vuex 的 state 对象并对其进行修改，响应式的 state 数据在被修改后触发执行 Vue Component 的`render`函数的重载，从而把 state 数据更新到渲染视图。
 
