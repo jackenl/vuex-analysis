@@ -642,9 +642,11 @@ store 构造函数是 plugins 注入，plugin 插件函数的第一个参数是 
 
 ## 6 实现一个简单版的 Vuex
 
-通过分析学习 Vuex 源码，接下来我们可以基于 Vuex 的编程思想实现一个仅仅含有状态管理功能的 Vuex，具体代码实现见[代码仓库](https://github.com/jackenl/vuex-analysis/tree/master/example) 
+通过分析学习 Vuex 源码，接下来我们可以基于 Vuex 的编程思想实现一个仅仅含有状态管理功能的 Vuex，具体代码实现见[代码仓库](https://github.com/jackenl/vuex-analysis/tree/master/example) ，你也可以访问该[demo](https://jackenl.github.io/vuex-analysis/)查看实现效果。
 
 ## 结语
+
+以上便是本人对 Vuex 源码的解读和分析，对于它个人觉得须着重于分析如何将 store 对象的注入 Vue，store 对象是如何构建的，以及如何构建 module 对象树令 store 对象能够访问到各个子 module 的变量属性，相信经过以上源码的深入解读，大家都对其过程有一定的理解和认识了。
 
 ## 参考文献
 
