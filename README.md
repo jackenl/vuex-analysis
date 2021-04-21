@@ -640,6 +640,10 @@ store 构造函数是 plugins 注入，plugin 插件函数的第一个参数是 
 
 在入口文件中，可以看到 mapState、mapGetters、mapMutations、mapActions 以及  createNamespacedHelpers 函数的定义在 helper.js 文件中，具体实现就不在这里展开赘述了，实现无非就是获取对一个 module 组件，通过访问传入的参数对应的组件的上下文环境属性并执行，方便更加高效的调用每个 module 的状态管理。
 
+## 6 实现一个简单版的 Vuex
+
+通过分析学习 Vuex 源码，接下来我们可以基于 Vuex 的编程思想实现一个仅仅含有状态管理功能的 Vuex，具体代码实现见[代码仓库](https://github.com/jackenl/vuex-analysis/tree/master/example) 
+
 ## 结语
 
 ## 参考文献

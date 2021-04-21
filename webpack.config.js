@@ -31,7 +31,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: '*.js',
+          from: 'app.js',
           context: path.resolve(__dirname, 'example')
         }
       ]
