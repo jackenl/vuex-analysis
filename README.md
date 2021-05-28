@@ -646,9 +646,16 @@ store 构造函数是 plugins 注入，plugin 插件函数的第一个参数是 
 
 ## 结语
 
-以上便是本人对 Vuex 源码的解读和分析，对于它个人觉得须着重于分析如何将 store 对象的注入 Vue，store 对象是如何构建的，以及如何构建 module 对象树令 store 对象能够访问到各个子 module 的变量属性，相信经过以上源码的深入解读，大家都对其过程有一定的理解和认识了。
+以上便是本人对 Vuex 源码的解读和分析，如果你想查看完整的源码分析过程，你也可以访问我的[github仓库](https://github.com/jackenl/vuex-analysis)进行查看，里面完整的代码分析过程和注释，希望我的源码分析能够帮助到你很好理解该库的实现原理。
 
 ## 参考文献
 
 * [Vuex框架原理与源码分析 - 美团技术团队](https://tech.meituan.com/2017/04/27/vuex-code-analysis.html)
 
+另外，你也可以阅读我的源码解读系列文章：
+
+* [深入解读 axios 源码](https://juejin.cn/post/6922713221665128462)
+
+* [深入解读 Vuex 源码](https://juejin.cn/post/6953467130029441038)
+
+* [深入解读 VueRouter 源码](https://juejin.cn/post/6967272280321687565)
